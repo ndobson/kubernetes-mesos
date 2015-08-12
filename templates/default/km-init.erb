@@ -1,0 +1,117 @@
+#!/bin/sh
+#
+# km-<%= @service %>          Start/Stop the kubernetes-mesos <%= @service %>.
+#
+# chkconfig: 2345 20 80
+# description: Daemon for kubernetes-mesos <%= @service %>.
+
+### BEGIN INIT INFO
+# Provides:
+# Required-Start: $network
+# Required-Stop:
+# Default-Start:  2345
+# Default-Stop: 016
+# Short-Description: run km <%= @service %> daemon
+# Description: Daemon for kubernetes-mesos <%= @service %>.
+### END INIT INFO
+
+[ -f <%= @config %> ] || {
+    [ "$1" = "status" ] && exit 4 || exit 6
+}
+
+RETVAL=0
+prog="km-<%= @service %>"
+exec=km
+lockfile=/var/lock/subsys/km-<%= @service %>
+config=<%= @config %>
+logfile=<%= node['kubernetes-mesos']['log_dir'] %>/km-<%= @service %>.log
+pidfile=/var/run/km-<%= @service %>.pid
+basedir=<%= node['kubernetes-mesos']['bin_dir'] %>
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+start() {
+    if [ $UID -ne 0 ] ; then
+        echo "User has insufficient privilege."
+        exit 4
+    fi
+    [ -x $basedir/$exec ] || exit 5
+    [ -f $config ] || exit 6
+    [ -f $logfile ] || touch $logfile
+    echo -n $"Starting $prog: "
+    pid=`PATH=$basedir:$PATH; $exec <%= @service %> <%= @args %> > $logfile 2>&1 & echo $!`
+    retval=$?
+    if [ -z $pid ]; then
+      failure
+    else
+      echo $pid > $pidfile
+      success
+    fi
+    echo
+    [ $retval -eq 0 ] && touch $lockfile
+}
+
+stop() {
+    if [ $UID -ne 0 ] ; then
+        echo "User has insufficient privilege."
+        exit 4
+    fi
+    echo -n $"Stopping $prog: "
+	if [ -n "`pidfileofproc $prog`" ]; then
+		killproc -p $pidfile $prog
+		RETVAL=3
+	else
+		failure $"Stopping $prog"
+	fi
+    retval=$?
+    echo
+    [ $retval -eq 0 ] && rm -f $lockfile
+}
+
+restart() {
+    rh_status_q && stop
+    start
+}
+
+force_reload() {
+	# new configuration takes effect after restart
+    restart
+}
+
+rh_status() {
+    # run checks to determine if the service is running or use generic status
+    status -p $pidfile $prog
+}
+
+rh_status_q() {
+    rh_status >/dev/null 2>&1
+}
+
+
+case "$1" in
+    start)
+        rh_status_q && exit 0
+        $1
+        ;;
+    stop)
+        rh_status_q || exit 0
+        $1
+        ;;
+    restart)
+        $1
+        ;;
+    force-reload)
+        force_reload
+        ;;
+    status)
+        rh_status
+        ;;
+    condrestart|try-restart)
+        rh_status_q || exit 0
+        restart
+        ;;
+    *)
+        echo $"Usage: $0 {start|stop|status|restart|condrestart|try-restart|force-reload}"
+        exit 2
+esac
+exit $?

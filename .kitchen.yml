@@ -1,0 +1,55 @@
+---
+driver:
+  name: vagrant
+  customize:
+    natdnshostresolver1: 'on'
+    cpus: 2
+    memory: 4096
+  network:
+    - ["forwarded_port", {guest: 5050, host: 5050, auto_correct: true}]
+    - ["forwarded_port", {guest: 5051, host: 5051, auto_correct: true}]
+    - ["forwarded_port", {guest: 8888, host: 8888, auto_correct: true}]
+  driver_config:
+    http_proxy: <%= ENV['http_proxy'] %>
+    https_proxy: <%= ENV['https_proxy'] %>
+    no_proxy: <%= ENV['no_proxy'] %>
+
+provisioner:
+  name: chef_zero
+  require_chef_omnibus: 12.0.3
+  client_rb:
+    http_proxy: <%= ENV['http_proxy'] %>
+    https_proxy: <%= ENV['https_proxy'] %>
+    no_proxy: <%= ENV['no_proxy'] %>
+
+platforms:
+  - name: centos-6.5
+  - name: centos-6.6
+
+suites:
+  - name: default
+    run_list:
+      - recipe[yum-epel]
+      - recipe[mesos::master]
+      - recipe[mesos::slave]
+      - recipe[kubernetes-mesos::default]
+    attributes:
+      kubernetes-mesos:
+        docker_service: true
+      mesos:
+        version: '0.21.1'
+        master:
+          flags:
+            #authenticate: no
+            #authenticate_slaves: false
+            logging_level: INFO
+            cluster: 'MyKubeMesosCluster'
+            #zk: 'zk://127.0.0.1:2181/mesos'
+            #quorum: 1
+        slave:
+          flags:
+            gc_delay: 1days
+            checkpoint: true
+            switch_user: yes
+            #master: 'zk://127.0.0.1:2181/mesos'
+            #master: '127.0.0.1:5050'
