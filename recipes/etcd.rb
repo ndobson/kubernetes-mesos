@@ -5,7 +5,7 @@ end
 # Launch etcd
 docker_container 'etcd' do
   detach true
-  hostname node[:hostname]
+  hostname node['hostname']
   image node['kubernetes-mesos']['etcd']['image_name']
   tag node['kubernetes-mesos']['etcd']['image_tag']
   port ['4001:4001', '7001:7001']

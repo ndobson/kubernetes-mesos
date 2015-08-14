@@ -14,9 +14,10 @@ describe 'kubernetes-mesos::default' do
     end
 
     before do
-      stub_command("false").and_return(true)
+      stub_command('true').and_return(true)
+      stub_command('kubectl get svc,rc --namespace=kube-system | grep kube-ui').and_return(true)
     end
-    
+
     it 'converges successfully' do
       chef_run # This should not raise an error
     end

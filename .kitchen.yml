@@ -9,10 +9,10 @@ driver:
     - ["forwarded_port", {guest: 5050, host: 5050, auto_correct: true}]
     - ["forwarded_port", {guest: 5051, host: 5051, auto_correct: true}]
     - ["forwarded_port", {guest: 8888, host: 8888, auto_correct: true}]
-  driver_config:
-    http_proxy: <%= ENV['http_proxy'] %>
-    https_proxy: <%= ENV['https_proxy'] %>
-    no_proxy: <%= ENV['no_proxy'] %>
+driver_config:
+  http_proxy: <%= ENV['http_proxy'] %>
+  https_proxy: <%= ENV['https_proxy'] %>
+  no_proxy: <%= ENV['no_proxy'] %>
 
 provisioner:
   name: chef_zero
