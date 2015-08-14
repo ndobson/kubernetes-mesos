@@ -8,5 +8,5 @@ version '0.1.0'
 
 supports 'centos'
 
-depends 'docker'
+depends 'docker', '= 0.43.0'
 depends 'github'

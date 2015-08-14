@@ -71,15 +71,15 @@ execute 'kubectl config cluster' do
 end
 
 # Install Kube UI
-execute 'Install Kube UI' do
-  command <<-EOH
-    kubectl create -f kube-ui-rc.yaml --namespace=kube-system && \
-    kubectl create -f kube-ui-svc.yaml --namespace=kube-system
-  EOH
-  environment 'PATH' => "#{node['kubernetes-mesos']['bin_dir']}:#{ENV['PATH']}"
-  cwd "#{k8sm_base_dir}/cluster/addons/kube-ui"
-  only_if node['kubernetes-mesos']['kube_ui'].to_s
-  not_if 'kubectl get svc,rc --namespace=kube-system | grep kube-ui', 'environment' => {
-    'PATH' => "#{node['kubernetes-mesos']['bin_dir']}:#{ENV['PATH']}"
-  }
-end
+# execute 'Install Kube UI' do
+#   command <<-EOH
+# kubectl create -f kube-ui-rc.yaml --namespace=kube-system && \
+# kubectl create -f kube-ui-svc.yaml --namespace=kube-system
+#   EOH
+#   environment 'PATH' => "#{node['kubernetes-mesos']['bin_dir']}:#{ENV['PATH']}"
+#   cwd "#{k8sm_base_dir}/cluster/addons/kube-ui"
+#   only_if node['kubernetes-mesos']['kube_ui'].to_s
+#   not_if 'kubectl get svc,rc --namespace=kube-system | grep kube-ui', 'environment' => {
+#     'PATH' => "#{node['kubernetes-mesos']['bin_dir']}:#{ENV['PATH']}"
+#   }
+# end
